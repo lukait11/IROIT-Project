@@ -5,10 +5,11 @@ import java.sql.Date;
 import jakarta.persistence.*;
 
 @Entity 
-@Table(name = "user")
+@Table(name = "users")
 public class User {
   
-  @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Id 
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long userId;
   private String firstName;
   private String lastName;
