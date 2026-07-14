@@ -61,7 +61,7 @@ class OrderServiceApplicationTests {
 
     ResponseEntity<Order[]> listResponse = restTemplate.getForEntity("/", Order[].class);
     assertThat(listResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
-    assertThat(listResponse.getBody()).hasSize(1);
+    assertThat(listResponse.getBody()).filteredOn(o -> o.getOrderId().equals(id)).hasSize(1);
 
     Order update = new Order(1L, "Mouse", 5, Date.valueOf("2026-02-02"));
     restTemplate.put("/" + id, update);
@@ -71,9 +71,11 @@ class OrderServiceApplicationTests {
     assertThat(afterUpdate.getBody().getProduct()).isEqualTo("Mouse");
     assertThat(afterUpdate.getBody().getQuantity()).isEqualTo(5);
 
-    // Regression guard: updating must not create a second row.
+    // Regression guard: updating must not create a second row for this order.
+    // (List size is checked by filtering on this test's own ID, not the whole
+    // table, since other e2e tests share the same Postgres/Kafka containers.)
     ResponseEntity<Order[]> listAfterUpdate = restTemplate.getForEntity("/", Order[].class);
-    assertThat(listAfterUpdate.getBody()).hasSize(1);
+    assertThat(listAfterUpdate.getBody()).filteredOn(o -> o.getOrderId().equals(id)).hasSize(1);
 
     restTemplate.delete("/" + id);
 
@@ -96,11 +98,25 @@ class OrderServiceApplicationTests {
       Order newOrder = new Order(2L, "Monitor", 1, Date.valueOf("2026-03-03"));
       ResponseEntity<Order> createResponse = restTemplate.postForEntity("/", newOrder, Order.class);
       assertThat(createResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+      Long id = createResponse.getBody().getOrderId();
+      String expectedMarker = "\"orderId\":" + id;
 
-      ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(15));
-      assertThat(records.count()).isGreaterThan(0);
-      String payload = records.iterator().next().value();
-      assertThat(payload).contains("ORDER_CREATED").contains("Monitor");
+      // The topic may already contain events from other e2e tests sharing this
+      // broker, so scan every polled record for the one this test created
+      // instead of assuming the first record received is ours.
+      boolean found = false;
+      long deadline = System.currentTimeMillis() + 15000;
+      while (!found && System.currentTimeMillis() < deadline) {
+        ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(2));
+        for (var record : records) {
+          if (record.value().contains("ORDER_CREATED") && record.value().contains(expectedMarker)) {
+            assertThat(record.value()).contains("Monitor");
+            found = true;
+            break;
+          }
+        }
+      }
+      assertThat(found).as("expected an ORDER_CREATED event for order %s on the topic", id).isTrue();
     }
   }
 
