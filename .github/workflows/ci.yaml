@@ -33,13 +33,13 @@ jobs:
           - name: Order Service
             path: order-service
             runTests: true
-          # payment/notification-service are still empty skeletons with no
-          # datasource configured yet, so their default contextLoads test
-          # can't start. Flip runTests to true once a service has real config
-          # and tests, the same way user-service and order-service were.
           - name: Payment Service
             path: payment-service
-            runTests: false
+            runTests: true
+          # notification-service is still an empty skeleton with no
+          # datasource configured yet, so its default contextLoads test
+          # can't start. Flip runTests to true once it has real config
+          # and tests, the same way the other services were.
           - name: Notification Service
             path: notification-service
             runTests: false
