@@ -1,0 +1,59 @@
+name: iroit-project
+
+# Local development overrides. The base file expects its env_file entries at
+# /opt/iroit/*.env to be provisioned on the host (production/ops-managed) -
+# this file instead injects the same values directly so the stack runs with
+# zero setup on a fresh clone, and opens up the infra ports for local tools
+# (psql, a Kafka client, etc.) that the base file deliberately keeps closed.
+
+services:
+  postgres:
+    ports:
+      - "5432:5432"
+
+  kafka:
+    ports:
+      - "9092:9092"
+
+  user-service:
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/user-service
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+    ports:
+      - "8081:8081"
+
+  order-service:
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/order-service
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    ports:
+      - "8082:8082"
+
+  payment-service:
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/payment-service
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    ports:
+      - "8083:8083"
+
+  notification-service:
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/notification-service
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      USER_SERVICE_URL: http://user-service:8081
+    ports:
+      - "8084:8084"
+
+  api-gateway:
+    environment:
+      USER_SERVICE_URL: http://user-service:8081
+      ORDER_SERVICE_URL: http://order-service:8082
+      PAYMENT_SERVICE_URL: http://payment-service:8083
+      NOTIFICATION_SERVICE_URL: http://notification-service:8084
