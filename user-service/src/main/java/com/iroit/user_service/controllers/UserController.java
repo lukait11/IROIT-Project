@@ -1,10 +1,8 @@
 package com.iroit.user_service.controllers;
 
-import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,91 +16,36 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-
-
 @RestController
 public class UserController {
-  
+
   @Autowired
   private UserService userService;
 
   @GetMapping
   public ResponseEntity<List<User>> getUsers() {
-    try {
-      List<User> result = userService.getUsers();
-      return ResponseEntity.ok(result);
-    } catch (Exception e) {
-      return ResponseEntity.status(HttpStatus.NO_CONTENT).body(Collections.emptyList());
-    }
+    return ResponseEntity.ok(userService.getUsers());
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<User> getUsers(@PathVariable Long userId) {
-    try {
-      User result = userService.getUserById(userId);
-      return ResponseEntity.ok(result);
-    } catch (Exception e) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-    }
+  public ResponseEntity<User> getUser(@PathVariable Long id) {
+    return ResponseEntity.ok(userService.getUserById(id));
   }
-  
-  @PostMapping()
+
+  @PostMapping
   public ResponseEntity<User> createUser(@RequestBody User user) {
-    try {
-      User result = userService.createUser(user);
-      return ResponseEntity.ok(result);
-    } catch (Exception e) {
-      String cause = e.getCause().getMessage();
-      switch (cause) {
-
-        case "Data":
-          return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-
-        default:
-          return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-          
-      }
-    }
+    return ResponseEntity.ok(userService.createUser(user));
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<User> updateUser(@PathVariable Long userId, @RequestBody User user) {
-    try {
-      User result = userService.updateUser(userId, user);
-      return ResponseEntity.ok(result);
-    } catch (Exception e) {
-      String cause = e.getCause().getMessage();
-      switch (cause) {
-
-        case "ID":
-        case "Data":
-          return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-
-        default:
-          return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-
-      }
-    }
+  public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user) {
+    return ResponseEntity.ok(userService.updateUser(id, user));
   }
 
   @DeleteMapping("/{id}")
-  public ResponseEntity<String> deleteUser(@PathVariable Long userId) {
-    try {
-      userService.deleteUser(userId);
-      return ResponseEntity.ok("Succesfully deleted");
-    } catch (Exception e) {
-      String cause = e.getCause().getMessage();
-      switch (cause) {
-
-        case "ID":
-          return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-
-        default:
-          return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-
-      }
-    }
+  public ResponseEntity<String> deleteUser(@PathVariable Long id) {
+    userService.deleteUser(id);
+    return ResponseEntity.ok("Successfully deleted");
   }
-  
 
 }
