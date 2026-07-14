@@ -23,6 +23,10 @@ public class User {
     this.dateOfBirth = dateOfBirth;
   }
 
+  public Long getUserId() {
+    return userId;
+  }
+
   public String getFirstName() {
     return firstName;
   }
