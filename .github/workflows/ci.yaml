@@ -30,13 +30,13 @@ jobs:
           - name: API Gateway
             path: api-gateway
             runTests: true
-          # order/payment/notification-service are still empty skeletons with
-          # no datasource configured yet, so their default contextLoads test
-          # can't start. Flip runTests to true once a service has real config
-          # and tests, the same way user-service was brought online.
           - name: Order Service
             path: order-service
-            runTests: false
+            runTests: true
+          # payment/notification-service are still empty skeletons with no
+          # datasource configured yet, so their default contextLoads test
+          # can't start. Flip runTests to true once a service has real config
+          # and tests, the same way user-service and order-service were.
           - name: Payment Service
             path: payment-service
             runTests: false
