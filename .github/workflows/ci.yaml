@@ -36,13 +36,9 @@ jobs:
           - name: Payment Service
             path: payment-service
             runTests: true
-          # notification-service is still an empty skeleton with no
-          # datasource configured yet, so its default contextLoads test
-          # can't start. Flip runTests to true once it has real config
-          # and tests, the same way the other services were.
           - name: Notification Service
             path: notification-service
-            runTests: false
+            runTests: true
 
     steps:
       - uses: actions/checkout@v4
