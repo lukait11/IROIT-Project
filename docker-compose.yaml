@@ -136,8 +136,40 @@ services:
       - notification-service
     restart: unless-stopped
 
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - iroit
+    restart: unless-stopped
+
+  grafana:
+    # Pinned below v13's new dashboard schema/rendering engine, which broke
+    # provisioned classic-schema dashboards (panels silently failed to mount).
+    image: grafana/grafana:11.3.0
+    env_file:
+      - path: /opt/iroit/grafana.env
+        required: false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports:
+      - "3000:3000"
+    networks:
+      - iroit
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
 volumes:
   postgres_data:
+  prometheus_data:
+  grafana_data:
 
 networks:
   iroit:
