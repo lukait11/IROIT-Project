@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "**/*.md"
+      - "docs/**"
+      - "docker-compose*.yaml"
+      - "LICENSE"
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - "**/*.md"
+      - "docs/**"
+      - "docker-compose*.yaml"
+      - "LICENSE"
+
+jobs:
+  backend:
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: User Service
+            path: user-service
+            runTests: true
+          - name: API Gateway
+            path: api-gateway
+            runTests: true
+          # order/payment/notification-service are still empty skeletons with
+          # no datasource configured yet, so their default contextLoads test
+          # can't start. Flip runTests to true once a service has real config
+          # and tests, the same way user-service was brought online.
+          - name: Order Service
+            path: order-service
+            runTests: false
+          - name: Payment Service
+            path: payment-service
+            runTests: false
+          - name: Notification Service
+            path: notification-service
+            runTests: false
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+          cache-dependency-path: ${{ matrix.path }}/pom.xml
+
+      - name: Build
+        working-directory: ${{ matrix.path }}
+        run: mvn -B compile
+
+      - name: Test
+        if: matrix.runTests
+        working-directory: ${{ matrix.path }}
+        run: mvn -B test
+
+      - name: Package
+        working-directory: ${{ matrix.path }}
+        run: mvn -B package -DskipTests
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.path }}-jar
+          path: ${{ matrix.path }}/target/*.jar
+          retention-days: 7
