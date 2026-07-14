@@ -22,7 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.kafka.KafkaContainer;
+import org.testcontainers.kafka.ConfluentKafkaContainer;
 
 import com.iroit.order_service.models.Order;
 
@@ -37,7 +37,7 @@ class OrderServiceApplicationTests {
 
   @Container
   @ServiceConnection
-  static KafkaContainer kafka = new KafkaContainer("apache/kafka:3.9.0");
+  static ConfluentKafkaContainer kafka = new ConfluentKafkaContainer("confluentinc/cp-kafka:7.7.1");
 
   @Autowired
   private TestRestTemplate restTemplate;
