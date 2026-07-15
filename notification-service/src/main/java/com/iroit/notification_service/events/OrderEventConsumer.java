@@ -1,6 +1,7 @@
 package com.iroit.notification_service.events;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,7 +65,7 @@ public class OrderEventConsumer {
   }
 
   private void saveNotification(Long orderId, Long userId, String message) {
-    Notification notification = new Notification(orderId, userId, message, LocalDateTime.now());
+    Notification notification = new Notification(orderId, userId, message, LocalDateTime.now(ZoneOffset.UTC));
     notificationRepository.save(notification);
     logger.info("Created notification for order {}: {}", orderId, message);
   }

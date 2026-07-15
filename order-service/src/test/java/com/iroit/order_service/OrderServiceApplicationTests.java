@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.Collections;
 import java.util.Properties;
 
@@ -44,7 +45,7 @@ class OrderServiceApplicationTests {
 
   @Test
   void fullOrderLifecycle_createReadUpdateDeleteAllWorkAgainstARealDatabase() {
-    Order newOrder = new Order(1L, "Keyboard", 2, LocalDate.of(2026, 1, 1));
+    Order newOrder = new Order(1L, "Keyboard", 2, LocalDate.of(2026, Month.JANUARY, 1));
 
     ResponseEntity<Order> createResponse = restTemplate.postForEntity("/", newOrder, Order.class);
     assertThat(createResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -63,7 +64,7 @@ class OrderServiceApplicationTests {
     assertThat(listResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat(listResponse.getBody()).filteredOn(o -> o.getOrderId().equals(id)).hasSize(1);
 
-    Order update = new Order(1L, "Mouse", 5, LocalDate.of(2026, 2, 2));
+    Order update = new Order(1L, "Mouse", 5, LocalDate.of(2026, Month.FEBRUARY, 2));
     restTemplate.put("/" + id, update);
 
     ResponseEntity<Order> afterUpdate = restTemplate.getForEntity("/" + id, Order.class);
@@ -95,7 +96,7 @@ class OrderServiceApplicationTests {
     try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props)) {
       consumer.subscribe(Collections.singletonList("order-events"));
 
-      Order newOrder = new Order(2L, "Monitor", 1, LocalDate.of(2026, 3, 3));
+      Order newOrder = new Order(2L, "Monitor", 1, LocalDate.of(2026, Month.MARCH, 3));
       ResponseEntity<Order> createResponse = restTemplate.postForEntity("/", newOrder, Order.class);
       assertThat(createResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
       Long id = createResponse.getBody().getOrderId();

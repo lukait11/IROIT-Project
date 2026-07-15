@@ -1,6 +1,7 @@
 package com.iroit.payment_service.events;
 
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +39,7 @@ public class OrderEventConsumer {
 
       Long orderId = root.path("order").path("orderId").asLong();
 
-      Payment payment = new Payment(orderId, 0.0, "PENDING", LocalDate.now());
+      Payment payment = new Payment(orderId, 0.0, "PENDING", LocalDate.now(ZoneOffset.UTC));
       paymentRepository.save(payment);
       logger.info("Created pending payment for order {}", orderId);
     } catch (Exception e) {

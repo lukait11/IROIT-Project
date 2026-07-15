@@ -37,13 +37,13 @@ public class PaymentController {
 
   @PostMapping
   public ResponseEntity<Payment> createPayment(@RequestBody PaymentRequest request) {
-    Payment payment = new Payment(request.getOrderId(), request.getAmount(), request.getStatus(), request.getPaymentDate());
+    Payment payment = new Payment(request.orderId(), request.amount(), request.status(), request.paymentDate());
     return ResponseEntity.ok(paymentService.createPayment(payment));
   }
 
   @PutMapping("/{id}")
   public ResponseEntity<Payment> updatePayment(@PathVariable Long id, @RequestBody PaymentRequest request) {
-    Payment payment = new Payment(request.getOrderId(), request.getAmount(), request.getStatus(), request.getPaymentDate());
+    Payment payment = new Payment(request.orderId(), request.amount(), request.status(), request.paymentDate());
     return ResponseEntity.ok(paymentService.updatePayment(id, payment));
   }
 

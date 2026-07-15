@@ -6,6 +6,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
+import java.time.Month;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,7 @@ class NotificationControllerTest {
   @Test
   void getNotifications_returnsOkWithBody() {
     when(notificationService.getNotifications()).thenReturn(java.util.List.of(
-        new Notification(1L, 1L, "Order created", LocalDateTime.of(2026, 1, 1, 0, 0))));
+        new Notification(1L, 1L, "Order created", LocalDateTime.of(2026, Month.JANUARY, 1, 0, 0))));
 
     mvc.get().uri("/")
         .assertThat()
@@ -52,7 +53,7 @@ class NotificationControllerTest {
   @Test
   void getNotification_found_returnsOk() {
     when(notificationService.getNotificationById(1L))
-        .thenReturn(new Notification(1L, 1L, "Order created", LocalDateTime.of(2026, 1, 1, 0, 0)));
+        .thenReturn(new Notification(1L, 1L, "Order created", LocalDateTime.of(2026, Month.JANUARY, 1, 0, 0)));
 
     mvc.get().uri("/1")
         .assertThat()
@@ -71,7 +72,7 @@ class NotificationControllerTest {
 
   @Test
   void createNotification_returnsOk() {
-    Notification notification = new Notification(1L, 1L, "Order created", LocalDateTime.of(2026, 1, 1, 0, 0));
+    Notification notification = new Notification(1L, 1L, "Order created", LocalDateTime.of(2026, Month.JANUARY, 1, 0, 0));
     when(notificationService.createNotification(any())).thenReturn(notification);
 
     mvc.post().uri("/")
@@ -94,7 +95,7 @@ class NotificationControllerTest {
 
   @Test
   void updateNotification_returnsOk() {
-    Notification notification = new Notification(1L, 1L, "Order shipped", LocalDateTime.of(2026, 1, 2, 0, 0));
+    Notification notification = new Notification(1L, 1L, "Order shipped", LocalDateTime.of(2026, Month.JANUARY, 2, 0, 0));
     when(notificationService.updateNotification(anyLong(), any())).thenReturn(notification);
 
     mvc.put().uri("/1")

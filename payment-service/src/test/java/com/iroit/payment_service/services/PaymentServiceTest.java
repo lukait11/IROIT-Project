@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,7 +36,7 @@ class PaymentServiceTest {
 
   @Test
   void getPayments_returnsWhateverTheRepositoryHas() {
-    Payment payment = new Payment(1L, 49.99, "PENDING", LocalDate.of(2026, 1, 1));
+    Payment payment = new Payment(1L, 49.99, "PENDING", LocalDate.of(2026, Month.JANUARY, 1));
     when(paymentRepository.findAll()).thenReturn(List.of(payment));
 
     List<Payment> result = paymentService.getPayments();
@@ -59,7 +60,7 @@ class PaymentServiceTest {
 
   @Test
   void getPaymentById_found_returnsPayment() {
-    Payment payment = new Payment(1L, 49.99, "PENDING", LocalDate.of(2026, 1, 1));
+    Payment payment = new Payment(1L, 49.99, "PENDING", LocalDate.of(2026, Month.JANUARY, 1));
     when(paymentRepository.findById(1L)).thenReturn(Optional.of(payment));
 
     Payment result = paymentService.getPaymentById(1L);
@@ -77,7 +78,7 @@ class PaymentServiceTest {
 
   @Test
   void createPayment_validPayment_savesAndReturnsIt() {
-    Payment payment = new Payment(1L, 49.99, "PENDING", LocalDate.of(2026, 1, 1));
+    Payment payment = new Payment(1L, 49.99, "PENDING", LocalDate.of(2026, Month.JANUARY, 1));
     when(paymentRepository.save(payment)).thenReturn(payment);
 
     Payment result = paymentService.createPayment(payment);
@@ -88,7 +89,7 @@ class PaymentServiceTest {
 
   @Test
   void updatePayment_invalidId_throwsInvalidRequestException() {
-    Payment payment = new Payment(1L, 49.99, "PENDING", LocalDate.of(2026, 1, 1));
+    Payment payment = new Payment(1L, 49.99, "PENDING", LocalDate.of(2026, Month.JANUARY, 1));
 
     assertThatThrownBy(() -> paymentService.updatePayment(-1L, payment))
         .isInstanceOf(InvalidRequestException.class);
@@ -107,7 +108,7 @@ class PaymentServiceTest {
   @Test
   void updatePayment_notFound_throwsResourceNotFoundException() {
     when(paymentRepository.findById(1L)).thenReturn(Optional.empty());
-    Payment payment = new Payment(1L, 49.99, "PENDING", LocalDate.of(2026, 1, 1));
+    Payment payment = new Payment(1L, 49.99, "PENDING", LocalDate.of(2026, Month.JANUARY, 1));
 
     assertThatThrownBy(() -> paymentService.updatePayment(1L, payment))
         .isInstanceOf(ResourceNotFoundException.class);
@@ -117,11 +118,11 @@ class PaymentServiceTest {
 
   @Test
   void updatePayment_existingPayment_savesTheFoundEntityWithNewFieldsNotTheIncomingOne() {
-    Payment existing = new Payment(1L, 49.99, "PENDING", LocalDate.of(2026, 1, 1));
+    Payment existing = new Payment(1L, 49.99, "PENDING", LocalDate.of(2026, Month.JANUARY, 1));
     when(paymentRepository.findById(1L)).thenReturn(Optional.of(existing));
     when(paymentRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-    Payment incoming = new Payment(1L, 49.99, "COMPLETED", LocalDate.of(2026, 1, 2));
+    Payment incoming = new Payment(1L, 49.99, "COMPLETED", LocalDate.of(2026, Month.JANUARY, 2));
     Payment result = paymentService.updatePayment(1L, incoming);
 
     ArgumentCaptor<Payment> savedCaptor = ArgumentCaptor.forClass(Payment.class);

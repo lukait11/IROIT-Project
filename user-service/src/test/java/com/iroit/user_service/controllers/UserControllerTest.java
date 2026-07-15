@@ -6,6 +6,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.time.Month;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,7 @@ class UserControllerTest {
   @Test
   void getUsers_returnsOkWithBody() {
     when(userService.getUsers()).thenReturn(java.util.List.of(
-        new User("Ada", "Lovelace", LocalDate.of(1815, 12, 10))));
+        new User("Ada", "Lovelace", LocalDate.of(1815, Month.DECEMBER, 10))));
 
     mvc.get().uri("/")
         .assertThat()
@@ -43,7 +44,7 @@ class UserControllerTest {
   @Test
   void getUser_found_returnsOk() {
     when(userService.getUserById(1L))
-        .thenReturn(new User("Ada", "Lovelace", LocalDate.of(1815, 12, 10)));
+        .thenReturn(new User("Ada", "Lovelace", LocalDate.of(1815, Month.DECEMBER, 10)));
 
     mvc.get().uri("/1")
         .assertThat()
@@ -62,7 +63,7 @@ class UserControllerTest {
 
   @Test
   void createUser_returnsOk() {
-    User user = new User("Ada", "Lovelace", LocalDate.of(1815, 12, 10));
+    User user = new User("Ada", "Lovelace", LocalDate.of(1815, Month.DECEMBER, 10));
     when(userService.createUser(any())).thenReturn(user);
 
     mvc.post().uri("/")
@@ -85,7 +86,7 @@ class UserControllerTest {
 
   @Test
   void updateUser_returnsOk() {
-    User user = new User("Augusta", "King", LocalDate.of(1815, 12, 10));
+    User user = new User("Augusta", "King", LocalDate.of(1815, Month.DECEMBER, 10));
     when(userService.updateUser(anyLong(), any())).thenReturn(user);
 
     mvc.put().uri("/1")

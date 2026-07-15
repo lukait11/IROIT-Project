@@ -37,13 +37,13 @@ public class UserController {
 
   @PostMapping
   public ResponseEntity<User> createUser(@RequestBody UserRequest request) {
-    User user = new User(request.getFirstName(), request.getLastName(), request.getDateOfBirth());
+    User user = new User(request.firstName(), request.lastName(), request.dateOfBirth());
     return ResponseEntity.ok(userService.createUser(user));
   }
 
   @PutMapping("/{id}")
   public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody UserRequest request) {
-    User user = new User(request.getFirstName(), request.getLastName(), request.getDateOfBirth());
+    User user = new User(request.firstName(), request.lastName(), request.dateOfBirth());
     return ResponseEntity.ok(userService.updateUser(id, user));
   }
 

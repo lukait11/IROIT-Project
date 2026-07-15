@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,7 +36,7 @@ class UserServiceTest {
 
   @Test
   void getUsers_returnsWhateverTheRepositoryHas() {
-    User user = new User("Ada", "Lovelace", LocalDate.of(1815, 12, 10));
+    User user = new User("Ada", "Lovelace", LocalDate.of(1815, Month.DECEMBER, 10));
     when(userRepository.findAll()).thenReturn(List.of(user));
 
     List<User> result = userService.getUsers();
@@ -74,7 +75,7 @@ class UserServiceTest {
 
   @Test
   void getUserById_found_returnsUser() {
-    User user = new User("Ada", "Lovelace", LocalDate.of(1815, 12, 10));
+    User user = new User("Ada", "Lovelace", LocalDate.of(1815, Month.DECEMBER, 10));
     when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
     User result = userService.getUserById(1L);
@@ -92,7 +93,7 @@ class UserServiceTest {
 
   @Test
   void createUser_validUser_savesAndReturnsIt() {
-    User user = new User("Ada", "Lovelace", LocalDate.of(1815, 12, 10));
+    User user = new User("Ada", "Lovelace", LocalDate.of(1815, Month.DECEMBER, 10));
     when(userRepository.save(user)).thenReturn(user);
 
     User result = userService.createUser(user);
@@ -103,7 +104,7 @@ class UserServiceTest {
 
   @Test
   void updateUser_invalidId_throwsInvalidRequestException() {
-    User user = new User("Ada", "Lovelace", LocalDate.of(1815, 12, 10));
+    User user = new User("Ada", "Lovelace", LocalDate.of(1815, Month.DECEMBER, 10));
 
     assertThatThrownBy(() -> userService.updateUser(-1L, user))
         .isInstanceOf(InvalidRequestException.class);
@@ -122,7 +123,7 @@ class UserServiceTest {
   @Test
   void updateUser_notFound_throwsResourceNotFoundException() {
     when(userRepository.findById(1L)).thenReturn(Optional.empty());
-    User user = new User("Ada", "Lovelace", LocalDate.of(1815, 12, 10));
+    User user = new User("Ada", "Lovelace", LocalDate.of(1815, Month.DECEMBER, 10));
 
     assertThatThrownBy(() -> userService.updateUser(1L, user))
         .isInstanceOf(ResourceNotFoundException.class);
@@ -132,11 +133,11 @@ class UserServiceTest {
 
   @Test
   void updateUser_existingUser_savesTheFoundEntityWithNewFieldsNotTheIncomingOne() {
-    User existing = new User("Ada", "Lovelace", LocalDate.of(1815, 12, 10));
+    User existing = new User("Ada", "Lovelace", LocalDate.of(1815, Month.DECEMBER, 10));
     when(userRepository.findById(1L)).thenReturn(Optional.of(existing));
     when(userRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-    User incoming = new User("Augusta", "King", LocalDate.of(1815, 12, 10));
+    User incoming = new User("Augusta", "King", LocalDate.of(1815, Month.DECEMBER, 10));
     User result = userService.updateUser(1L, incoming);
 
     ArgumentCaptor<User> savedCaptor = ArgumentCaptor.forClass(User.class);

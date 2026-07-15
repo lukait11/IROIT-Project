@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.time.Month;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,7 +32,7 @@ class OrderEventProducerTest {
 
   @Test
   void publish_sendsOrderEventToTheOrderEventsTopic() {
-    Order order = spy(new Order(1L, "Keyboard", 2, LocalDate.of(2026, 1, 1)));
+    Order order = spy(new Order(1L, "Keyboard", 2, LocalDate.of(2026, Month.JANUARY, 1)));
     when(order.getOrderId()).thenReturn(42L);
 
     orderEventProducer.publish("ORDER_CREATED", order);
@@ -47,7 +48,7 @@ class OrderEventProducerTest {
 
   @Test
   void publish_kafkaSendThrows_isCaughtAndNotPropagated() {
-    Order order = spy(new Order(1L, "Keyboard", 2, LocalDate.of(2026, 1, 1)));
+    Order order = spy(new Order(1L, "Keyboard", 2, LocalDate.of(2026, Month.JANUARY, 1)));
     when(order.getOrderId()).thenReturn(42L);
     when(kafkaTemplate.send(any(String.class), any(String.class), any(OrderEvent.class)))
         .thenThrow(new RuntimeException("broker unreachable"));

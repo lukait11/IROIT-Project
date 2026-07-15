@@ -5,6 +5,7 @@ import static org.awaitility.Awaitility.await;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -45,7 +46,7 @@ class PaymentServiceApplicationTests {
 
   @Test
   void fullPaymentLifecycle_createReadUpdateDeleteAllWorkAgainstARealDatabase() {
-    Payment newPayment = new Payment(1L, 49.99, "PENDING", LocalDate.of(2026, 1, 1));
+    Payment newPayment = new Payment(1L, 49.99, "PENDING", LocalDate.of(2026, Month.JANUARY, 1));
 
     ResponseEntity<Payment> createResponse = restTemplate.postForEntity("/", newPayment, Payment.class);
     assertThat(createResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -66,7 +67,7 @@ class PaymentServiceApplicationTests {
     assertThat(listResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat(listResponse.getBody()).filteredOn(p -> p.getPaymentId().equals(id)).hasSize(1);
 
-    Payment update = new Payment(1L, 49.99, "COMPLETED", LocalDate.of(2026, 1, 2));
+    Payment update = new Payment(1L, 49.99, "COMPLETED", LocalDate.of(2026, Month.JANUARY, 2));
     restTemplate.put("/" + id, update);
 
     ResponseEntity<Payment> afterUpdate = restTemplate.getForEntity("/" + id, Payment.class);

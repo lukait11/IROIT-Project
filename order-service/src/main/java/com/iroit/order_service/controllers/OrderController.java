@@ -37,13 +37,13 @@ public class OrderController {
 
   @PostMapping
   public ResponseEntity<Order> createOrder(@RequestBody OrderRequest request) {
-    Order order = new Order(request.getUserId(), request.getProduct(), request.getQuantity(), request.getOrderDate());
+    Order order = new Order(request.userId(), request.product(), request.quantity(), request.orderDate());
     return ResponseEntity.ok(orderService.createOrder(order));
   }
 
   @PutMapping("/{id}")
   public ResponseEntity<Order> updateOrder(@PathVariable Long id, @RequestBody OrderRequest request) {
-    Order order = new Order(request.getUserId(), request.getProduct(), request.getQuantity(), request.getOrderDate());
+    Order order = new Order(request.userId(), request.product(), request.quantity(), request.orderDate());
     return ResponseEntity.ok(orderService.updateOrder(id, order));
   }
 

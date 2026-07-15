@@ -5,6 +5,7 @@ import static org.awaitility.Awaitility.await;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -45,7 +46,7 @@ class NotificationServiceApplicationTests {
 
   @Test
   void fullNotificationLifecycle_createReadUpdateDeleteAllWorkAgainstARealDatabase() {
-    Notification newNotification = new Notification(1L, 1L, "Order created", LocalDateTime.of(2026, 1, 1, 0, 0));
+    Notification newNotification = new Notification(1L, 1L, "Order created", LocalDateTime.of(2026, Month.JANUARY, 1, 0, 0));
 
     ResponseEntity<Notification> createResponse = restTemplate.postForEntity("/", newNotification, Notification.class);
     assertThat(createResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -66,7 +67,7 @@ class NotificationServiceApplicationTests {
     assertThat(listResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat(listResponse.getBody()).filteredOn(n -> n.getNotificationId().equals(id)).hasSize(1);
 
-    Notification update = new Notification(1L, 1L, "Order shipped", LocalDateTime.of(2026, 1, 2, 0, 0));
+    Notification update = new Notification(1L, 1L, "Order shipped", LocalDateTime.of(2026, Month.JANUARY, 2, 0, 0));
     restTemplate.put("/" + id, update);
 
     ResponseEntity<Notification> afterUpdate = restTemplate.getForEntity("/" + id, Notification.class);

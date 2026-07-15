@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,7 +36,7 @@ class NotificationServiceTest {
 
   @Test
   void getNotifications_returnsWhateverTheRepositoryHas() {
-    Notification notification = new Notification(1L, 1L, "Order created", LocalDateTime.of(2026, 1, 1, 0, 0));
+    Notification notification = new Notification(1L, 1L, "Order created", LocalDateTime.of(2026, Month.JANUARY, 1, 0, 0));
     when(notificationRepository.findAll()).thenReturn(List.of(notification));
 
     List<Notification> result = notificationService.getNotifications();
@@ -59,7 +60,7 @@ class NotificationServiceTest {
 
   @Test
   void getNotificationById_found_returnsNotification() {
-    Notification notification = new Notification(1L, 1L, "Order created", LocalDateTime.of(2026, 1, 1, 0, 0));
+    Notification notification = new Notification(1L, 1L, "Order created", LocalDateTime.of(2026, Month.JANUARY, 1, 0, 0));
     when(notificationRepository.findById(1L)).thenReturn(Optional.of(notification));
 
     Notification result = notificationService.getNotificationById(1L);
@@ -77,7 +78,7 @@ class NotificationServiceTest {
 
   @Test
   void createNotification_validNotification_savesAndReturnsIt() {
-    Notification notification = new Notification(1L, 1L, "Order created", LocalDateTime.of(2026, 1, 1, 0, 0));
+    Notification notification = new Notification(1L, 1L, "Order created", LocalDateTime.of(2026, Month.JANUARY, 1, 0, 0));
     when(notificationRepository.save(notification)).thenReturn(notification);
 
     Notification result = notificationService.createNotification(notification);
@@ -88,7 +89,7 @@ class NotificationServiceTest {
 
   @Test
   void updateNotification_invalidId_throwsInvalidRequestException() {
-    Notification notification = new Notification(1L, 1L, "Order created", LocalDateTime.of(2026, 1, 1, 0, 0));
+    Notification notification = new Notification(1L, 1L, "Order created", LocalDateTime.of(2026, Month.JANUARY, 1, 0, 0));
 
     assertThatThrownBy(() -> notificationService.updateNotification(-1L, notification))
         .isInstanceOf(InvalidRequestException.class);
@@ -107,7 +108,7 @@ class NotificationServiceTest {
   @Test
   void updateNotification_notFound_throwsResourceNotFoundException() {
     when(notificationRepository.findById(1L)).thenReturn(Optional.empty());
-    Notification notification = new Notification(1L, 1L, "Order created", LocalDateTime.of(2026, 1, 1, 0, 0));
+    Notification notification = new Notification(1L, 1L, "Order created", LocalDateTime.of(2026, Month.JANUARY, 1, 0, 0));
 
     assertThatThrownBy(() -> notificationService.updateNotification(1L, notification))
         .isInstanceOf(ResourceNotFoundException.class);
@@ -117,11 +118,11 @@ class NotificationServiceTest {
 
   @Test
   void updateNotification_existingNotification_savesTheFoundEntityWithNewFieldsNotTheIncomingOne() {
-    Notification existing = new Notification(1L, 1L, "Order created", LocalDateTime.of(2026, 1, 1, 0, 0));
+    Notification existing = new Notification(1L, 1L, "Order created", LocalDateTime.of(2026, Month.JANUARY, 1, 0, 0));
     when(notificationRepository.findById(1L)).thenReturn(Optional.of(existing));
     when(notificationRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-    Notification incoming = new Notification(1L, 1L, "Order shipped", LocalDateTime.of(2026, 1, 2, 0, 0));
+    Notification incoming = new Notification(1L, 1L, "Order shipped", LocalDateTime.of(2026, Month.JANUARY, 2, 0, 0));
     Notification result = notificationService.updateNotification(1L, incoming);
 
     ArgumentCaptor<Notification> savedCaptor = ArgumentCaptor.forClass(Notification.class);

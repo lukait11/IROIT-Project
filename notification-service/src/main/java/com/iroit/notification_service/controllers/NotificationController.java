@@ -38,14 +38,14 @@ public class NotificationController {
   @PostMapping
   public ResponseEntity<Notification> createNotification(@RequestBody NotificationRequest request) {
     Notification notification = new Notification(
-        request.getOrderId(), request.getUserId(), request.getMessage(), request.getCreatedAt());
+        request.orderId(), request.userId(), request.message(), request.createdAt());
     return ResponseEntity.ok(notificationService.createNotification(notification));
   }
 
   @PutMapping("/{id}")
   public ResponseEntity<Notification> updateNotification(@PathVariable Long id, @RequestBody NotificationRequest request) {
     Notification notification = new Notification(
-        request.getOrderId(), request.getUserId(), request.getMessage(), request.getCreatedAt());
+        request.orderId(), request.userId(), request.message(), request.createdAt());
     return ResponseEntity.ok(notificationService.updateNotification(id, notification));
   }
 
