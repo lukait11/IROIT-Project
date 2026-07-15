@@ -1,10 +1,10 @@
 package com.iroit.notification_service.events;
 
-import java.sql.Date;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -29,11 +29,13 @@ public class OrderEventConsumer {
   private static final Logger logger = LoggerFactory.getLogger(OrderEventConsumer.class);
   private static final ObjectMapper objectMapper = new ObjectMapper();
 
-  @Autowired
-  private NotificationRepository notificationRepository;
+  private final NotificationRepository notificationRepository;
+  private final RestClient userServiceClient;
 
-  @Autowired
-  private RestClient userServiceClient;
+  public OrderEventConsumer(NotificationRepository notificationRepository, RestClient userServiceClient) {
+    this.notificationRepository = notificationRepository;
+    this.userServiceClient = userServiceClient;
+  }
 
   @KafkaListener(topics = "order-events", groupId = "${spring.application.name}")
   public void onOrderEvent(String message) {
@@ -63,7 +65,7 @@ public class OrderEventConsumer {
   }
 
   private void saveNotification(Long orderId, Long userId, String message) {
-    Notification notification = new Notification(orderId, userId, message, new Date(System.currentTimeMillis()));
+    Notification notification = new Notification(orderId, userId, message, LocalDateTime.now(ZoneOffset.UTC));
     notificationRepository.save(notification);
     logger.info("Created notification for order {}: {}", orderId, message);
   }

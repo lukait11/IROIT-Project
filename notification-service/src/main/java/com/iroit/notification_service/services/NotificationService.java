@@ -2,7 +2,6 @@ package com.iroit.notification_service.services;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.iroit.notification_service.exceptions.InvalidRequestException;
@@ -13,8 +12,11 @@ import com.iroit.notification_service.repositories.NotificationRepository;
 @Service
 public class NotificationService {
 
-  @Autowired
-  private NotificationRepository notificationRepository;
+  private final NotificationRepository notificationRepository;
+
+  public NotificationService(NotificationRepository notificationRepository) {
+    this.notificationRepository = notificationRepository;
+  }
 
 //#region Get methods
   public List<Notification> getNotifications() {

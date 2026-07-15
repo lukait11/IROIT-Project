@@ -1,9 +1,13 @@
 package com.iroit.notification_service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 
-import java.sql.Date;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -42,7 +46,7 @@ class NotificationServiceApplicationTests {
 
   @Test
   void fullNotificationLifecycle_createReadUpdateDeleteAllWorkAgainstARealDatabase() {
-    Notification newNotification = new Notification(1L, 1L, "Order created", Date.valueOf("2026-01-01"));
+    Notification newNotification = new Notification(1L, 1L, "Order created", LocalDateTime.of(2026, Month.JANUARY, 1, 0, 0));
 
     ResponseEntity<Notification> createResponse = restTemplate.postForEntity("/", newNotification, Notification.class);
     assertThat(createResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -63,7 +67,7 @@ class NotificationServiceApplicationTests {
     assertThat(listResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat(listResponse.getBody()).filteredOn(n -> n.getNotificationId().equals(id)).hasSize(1);
 
-    Notification update = new Notification(1L, 1L, "Order shipped", Date.valueOf("2026-01-02"));
+    Notification update = new Notification(1L, 1L, "Order shipped", LocalDateTime.of(2026, Month.JANUARY, 2, 0, 0));
     restTemplate.put("/" + id, update);
 
     ResponseEntity<Notification> afterUpdate = restTemplate.getForEntity("/" + id, Notification.class);
@@ -98,22 +102,21 @@ class NotificationServiceApplicationTests {
       producer.send(new ProducerRecord<>("order-events", String.valueOf(orderId), eventJson)).get();
     }
 
-    Notification createdNotification = null;
-    long deadline = System.currentTimeMillis() + 20000;
-    while (createdNotification == null && System.currentTimeMillis() < deadline) {
+    AtomicReference<Notification> createdNotification = new AtomicReference<>();
+    await().atMost(Duration.ofSeconds(20)).pollInterval(Duration.ofMillis(500)).untilAsserted(() -> {
       ResponseEntity<Notification[]> listResponse = restTemplate.getForEntity("/", Notification[].class);
+      Notification match = null;
       for (Notification notification : listResponse.getBody()) {
         if (Long.valueOf(orderId).equals(notification.getOrderId())) {
-          createdNotification = notification;
+          match = notification;
           break;
         }
       }
-      if (createdNotification == null)
-        Thread.sleep(500);
-    }
+      assertThat(match).as("expected a notification to be created for order %s", orderId).isNotNull();
+      createdNotification.set(match);
+    });
 
-    assertThat(createdNotification).as("expected a notification to be created for order %s", orderId).isNotNull();
-    assertThat(createdNotification.getMessage()).contains("user details unavailable");
+    assertThat(createdNotification.get().getMessage()).contains("user details unavailable");
   }
 
   @Test

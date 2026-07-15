@@ -1,6 +1,6 @@
 package com.iroit.notification_service.models;
 
-import java.sql.Date;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
 
@@ -14,11 +14,11 @@ public class Notification {
   private Long orderId;
   private Long userId;
   private String message;
-  private Date createdAt;
+  private LocalDateTime createdAt;
 
   public Notification() {}
 
-  public Notification(Long orderId, Long userId, String message, Date createdAt) {
+  public Notification(Long orderId, Long userId, String message, LocalDateTime createdAt) {
     this.orderId = orderId;
     this.userId = userId;
     this.message = message;
@@ -47,10 +47,10 @@ public class Notification {
   public void setMessage(String message) {
     this.message = message;
   }
-  public Date getCreatedAt() {
+  public LocalDateTime getCreatedAt() {
     return createdAt;
   }
-  public void setCreatedAt(Date createdAt) {
+  public void setCreatedAt(LocalDateTime createdAt) {
     this.createdAt = createdAt;
   }
 

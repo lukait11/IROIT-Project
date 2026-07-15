@@ -2,7 +2,6 @@ package com.iroit.order_service.services;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.iroit.order_service.events.OrderEventProducer;
@@ -14,11 +13,15 @@ import com.iroit.order_service.repositories.OrderRepository;
 @Service
 public class OrderService {
 
-  @Autowired
-  private OrderRepository orderRepository;
+  private static final String ORDER_NOT_FOUND_MESSAGE = "The order was not found!";
 
-  @Autowired
-  private OrderEventProducer orderEventProducer;
+  private final OrderRepository orderRepository;
+  private final OrderEventProducer orderEventProducer;
+
+  public OrderService(OrderRepository orderRepository, OrderEventProducer orderEventProducer) {
+    this.orderRepository = orderRepository;
+    this.orderEventProducer = orderEventProducer;
+  }
 
 //#region Get methods
   public List<Order> getOrders() {
@@ -30,7 +33,7 @@ public class OrderService {
       throw new InvalidRequestException("Invalid ID supplied!");
 
     return orderRepository.findById(orderId)
-        .orElseThrow(() -> new ResourceNotFoundException("The order was not found!"));
+        .orElseThrow(() -> new ResourceNotFoundException(ORDER_NOT_FOUND_MESSAGE));
   }
 //#endregion
 
@@ -54,7 +57,7 @@ public class OrderService {
       throw new InvalidRequestException("Invalid order data supplied!");
 
     Order foundOrder = orderRepository.findById(orderId)
-        .orElseThrow(() -> new ResourceNotFoundException("The order was not found!"));
+        .orElseThrow(() -> new ResourceNotFoundException(ORDER_NOT_FOUND_MESSAGE));
 
     foundOrder.setUserId(order.getUserId());
     foundOrder.setProduct(order.getProduct());
@@ -73,7 +76,7 @@ public class OrderService {
       throw new InvalidRequestException("Invalid ID supplied!");
 
     Order foundOrder = orderRepository.findById(orderId)
-        .orElseThrow(() -> new ResourceNotFoundException("The order was not found!"));
+        .orElseThrow(() -> new ResourceNotFoundException(ORDER_NOT_FOUND_MESSAGE));
 
     orderRepository.deleteById(orderId);
     orderEventProducer.publish("ORDER_DELETED", foundOrder);

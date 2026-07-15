@@ -70,6 +70,13 @@
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
 		</dependency>
+		<!-- Required for Jackson 2 to serialize java.time types (Order.orderDate
+		     is a LocalDate); Spring Kafka's JsonSerializer auto-discovers this
+		     module via classpath scanning, no extra config needed. -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-jsr310</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>org.postgresql</groupId>

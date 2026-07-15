@@ -1,9 +1,13 @@
 package com.iroit.payment_service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 
-import java.sql.Date;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -42,7 +46,7 @@ class PaymentServiceApplicationTests {
 
   @Test
   void fullPaymentLifecycle_createReadUpdateDeleteAllWorkAgainstARealDatabase() {
-    Payment newPayment = new Payment(1L, 49.99, "PENDING", Date.valueOf("2026-01-01"));
+    Payment newPayment = new Payment(1L, 49.99, "PENDING", LocalDate.of(2026, Month.JANUARY, 1));
 
     ResponseEntity<Payment> createResponse = restTemplate.postForEntity("/", newPayment, Payment.class);
     assertThat(createResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -63,7 +67,7 @@ class PaymentServiceApplicationTests {
     assertThat(listResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat(listResponse.getBody()).filteredOn(p -> p.getPaymentId().equals(id)).hasSize(1);
 
-    Payment update = new Payment(1L, 49.99, "COMPLETED", Date.valueOf("2026-01-02"));
+    Payment update = new Payment(1L, 49.99, "COMPLETED", LocalDate.of(2026, Month.JANUARY, 2));
     restTemplate.put("/" + id, update);
 
     ResponseEntity<Payment> afterUpdate = restTemplate.getForEntity("/" + id, Payment.class);
@@ -95,22 +99,21 @@ class PaymentServiceApplicationTests {
       producer.send(new ProducerRecord<>("order-events", String.valueOf(orderId), eventJson)).get();
     }
 
-    Payment createdPayment = null;
-    long deadline = System.currentTimeMillis() + 20000;
-    while (createdPayment == null && System.currentTimeMillis() < deadline) {
+    AtomicReference<Payment> createdPayment = new AtomicReference<>();
+    await().atMost(Duration.ofSeconds(20)).pollInterval(Duration.ofMillis(500)).untilAsserted(() -> {
       ResponseEntity<Payment[]> listResponse = restTemplate.getForEntity("/", Payment[].class);
+      Payment match = null;
       for (Payment payment : listResponse.getBody()) {
         if (Long.valueOf(orderId).equals(payment.getOrderId())) {
-          createdPayment = payment;
+          match = payment;
           break;
         }
       }
-      if (createdPayment == null)
-        Thread.sleep(500);
-    }
+      assertThat(match).as("expected a payment to be created for order %s", orderId).isNotNull();
+      createdPayment.set(match);
+    });
 
-    assertThat(createdPayment).as("expected a payment to be created for order %s", orderId).isNotNull();
-    assertThat(createdPayment.getStatus()).isEqualTo("PENDING");
+    assertThat(createdPayment.get().getStatus()).isEqualTo("PENDING");
   }
 
   @Test

@@ -2,7 +2,6 @@ package com.iroit.order_service.events;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
@@ -15,8 +14,11 @@ public class OrderEventProducer {
 
   private static final Logger logger = LoggerFactory.getLogger(OrderEventProducer.class);
 
-  @Autowired
-  private KafkaTemplate<String, OrderEvent> kafkaTemplate;
+  private final KafkaTemplate<String, OrderEvent> kafkaTemplate;
+
+  public OrderEventProducer(KafkaTemplate<String, OrderEvent> kafkaTemplate) {
+    this.kafkaTemplate = kafkaTemplate;
+  }
 
   // The order is already durably saved by the time this runs, so a broker
   // outage must not fail the request that triggered it - log and move on.

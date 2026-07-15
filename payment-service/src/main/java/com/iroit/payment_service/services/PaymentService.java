@@ -2,7 +2,6 @@ package com.iroit.payment_service.services;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.iroit.payment_service.exceptions.InvalidRequestException;
@@ -13,8 +12,11 @@ import com.iroit.payment_service.repositories.PaymentRepository;
 @Service
 public class PaymentService {
 
-  @Autowired
-  private PaymentRepository paymentRepository;
+  private final PaymentRepository paymentRepository;
+
+  public PaymentService(PaymentRepository paymentRepository) {
+    this.paymentRepository = paymentRepository;
+  }
 
 //#region Get methods
   public List<Payment> getPayments() {

@@ -2,10 +2,10 @@ package com.iroit.order_service.controllers;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.iroit.order_service.dto.OrderRequest;
 import com.iroit.order_service.models.Order;
 import com.iroit.order_service.services.OrderService;
 
@@ -19,8 +19,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RestController
 public class OrderController {
 
-  @Autowired
-  private OrderService orderService;
+  private final OrderService orderService;
+
+  public OrderController(OrderService orderService) {
+    this.orderService = orderService;
+  }
 
   @GetMapping
   public ResponseEntity<List<Order>> getOrders() {
@@ -33,12 +36,14 @@ public class OrderController {
   }
 
   @PostMapping
-  public ResponseEntity<Order> createOrder(@RequestBody Order order) {
+  public ResponseEntity<Order> createOrder(@RequestBody OrderRequest request) {
+    Order order = new Order(request.userId(), request.product(), request.quantity(), request.orderDate());
     return ResponseEntity.ok(orderService.createOrder(order));
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<Order> updateOrder(@PathVariable Long id, @RequestBody Order order) {
+  public ResponseEntity<Order> updateOrder(@PathVariable Long id, @RequestBody OrderRequest request) {
+    Order order = new Order(request.userId(), request.product(), request.quantity(), request.orderDate());
     return ResponseEntity.ok(orderService.updateOrder(id, order));
   }
 

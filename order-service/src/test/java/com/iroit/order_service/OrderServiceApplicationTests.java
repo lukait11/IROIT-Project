@@ -2,8 +2,9 @@ package com.iroit.order_service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.sql.Date;
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.Collections;
 import java.util.Properties;
 
@@ -44,7 +45,7 @@ class OrderServiceApplicationTests {
 
   @Test
   void fullOrderLifecycle_createReadUpdateDeleteAllWorkAgainstARealDatabase() {
-    Order newOrder = new Order(1L, "Keyboard", 2, Date.valueOf("2026-01-01"));
+    Order newOrder = new Order(1L, "Keyboard", 2, LocalDate.of(2026, Month.JANUARY, 1));
 
     ResponseEntity<Order> createResponse = restTemplate.postForEntity("/", newOrder, Order.class);
     assertThat(createResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -63,7 +64,7 @@ class OrderServiceApplicationTests {
     assertThat(listResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat(listResponse.getBody()).filteredOn(o -> o.getOrderId().equals(id)).hasSize(1);
 
-    Order update = new Order(1L, "Mouse", 5, Date.valueOf("2026-02-02"));
+    Order update = new Order(1L, "Mouse", 5, LocalDate.of(2026, Month.FEBRUARY, 2));
     restTemplate.put("/" + id, update);
 
     ResponseEntity<Order> afterUpdate = restTemplate.getForEntity("/" + id, Order.class);
@@ -95,7 +96,7 @@ class OrderServiceApplicationTests {
     try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props)) {
       consumer.subscribe(Collections.singletonList("order-events"));
 
-      Order newOrder = new Order(2L, "Monitor", 1, Date.valueOf("2026-03-03"));
+      Order newOrder = new Order(2L, "Monitor", 1, LocalDate.of(2026, Month.MARCH, 3));
       ResponseEntity<Order> createResponse = restTemplate.postForEntity("/", newOrder, Order.class);
       assertThat(createResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
       Long id = createResponse.getBody().getOrderId();
@@ -108,9 +109,9 @@ class OrderServiceApplicationTests {
       long deadline = System.currentTimeMillis() + 15000;
       while (!found && System.currentTimeMillis() < deadline) {
         ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(2));
-        for (var record : records) {
-          if (record.value().contains("ORDER_CREATED") && record.value().contains(expectedMarker)) {
-            assertThat(record.value()).contains("Monitor");
+        for (var consumerRecord : records) {
+          if (consumerRecord.value().contains("ORDER_CREATED") && consumerRecord.value().contains(expectedMarker)) {
+            assertThat(consumerRecord.value()).contains("Monitor");
             found = true;
             break;
           }

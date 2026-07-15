@@ -2,9 +2,11 @@ package com.iroit.payment_service.controllers;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
-import java.sql.Date;
+import java.time.LocalDate;
+import java.time.Month;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +33,7 @@ class PaymentControllerTest {
   @Test
   void getPayments_returnsOkWithBody() {
     when(paymentService.getPayments()).thenReturn(java.util.List.of(
-        new Payment(1L, 49.99, "PENDING", Date.valueOf("2026-01-01"))));
+        new Payment(1L, 49.99, "PENDING", LocalDate.of(2026, Month.JANUARY, 1))));
 
     mvc.get().uri("/")
         .assertThat()
@@ -51,7 +53,7 @@ class PaymentControllerTest {
   @Test
   void getPayment_found_returnsOk() {
     when(paymentService.getPaymentById(1L))
-        .thenReturn(new Payment(1L, 49.99, "PENDING", Date.valueOf("2026-01-01")));
+        .thenReturn(new Payment(1L, 49.99, "PENDING", LocalDate.of(2026, Month.JANUARY, 1)));
 
     mvc.get().uri("/1")
         .assertThat()
@@ -70,7 +72,7 @@ class PaymentControllerTest {
 
   @Test
   void createPayment_returnsOk() {
-    Payment payment = new Payment(1L, 49.99, "PENDING", Date.valueOf("2026-01-01"));
+    Payment payment = new Payment(1L, 49.99, "PENDING", LocalDate.of(2026, Month.JANUARY, 1));
     when(paymentService.createPayment(any())).thenReturn(payment);
 
     mvc.post().uri("/")
@@ -93,7 +95,7 @@ class PaymentControllerTest {
 
   @Test
   void updatePayment_returnsOk() {
-    Payment payment = new Payment(1L, 49.99, "COMPLETED", Date.valueOf("2026-01-02"));
+    Payment payment = new Payment(1L, 49.99, "COMPLETED", LocalDate.of(2026, Month.JANUARY, 2));
     when(paymentService.updatePayment(anyLong(), any())).thenReturn(payment);
 
     mvc.put().uri("/1")
@@ -124,7 +126,7 @@ class PaymentControllerTest {
 
   @Test
   void deletePayment_notFound_returns404() {
-    org.mockito.Mockito.doThrow(new ResourceNotFoundException("The payment was not found!"))
+    doThrow(new ResourceNotFoundException("The payment was not found!"))
         .when(paymentService).deletePayment(1L);
 
     mvc.delete().uri("/1")

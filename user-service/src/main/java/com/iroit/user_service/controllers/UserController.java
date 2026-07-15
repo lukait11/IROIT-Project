@@ -2,10 +2,10 @@ package com.iroit.user_service.controllers;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.iroit.user_service.dto.UserRequest;
 import com.iroit.user_service.models.User;
 import com.iroit.user_service.services.UserService;
 
@@ -19,8 +19,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RestController
 public class UserController {
 
-  @Autowired
-  private UserService userService;
+  private final UserService userService;
+
+  public UserController(UserService userService) {
+    this.userService = userService;
+  }
 
   @GetMapping
   public ResponseEntity<List<User>> getUsers() {
@@ -33,12 +36,14 @@ public class UserController {
   }
 
   @PostMapping
-  public ResponseEntity<User> createUser(@RequestBody User user) {
+  public ResponseEntity<User> createUser(@RequestBody UserRequest request) {
+    User user = new User(request.firstName(), request.lastName(), request.dateOfBirth());
     return ResponseEntity.ok(userService.createUser(user));
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user) {
+  public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody UserRequest request) {
+    User user = new User(request.firstName(), request.lastName(), request.dateOfBirth());
     return ResponseEntity.ok(userService.updateUser(id, user));
   }
 

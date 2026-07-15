@@ -1,6 +1,6 @@
 package com.iroit.order_service.models;
 
-import java.sql.Date;
+import java.time.LocalDate;
 
 import jakarta.persistence.*;
 
@@ -14,11 +14,11 @@ public class Order {
   private Long userId;
   private String product;
   private Integer quantity;
-  private Date orderDate;
+  private LocalDate orderDate;
 
   public Order() {}
 
-  public Order(Long userId, String product, Integer quantity, Date orderDate) {
+  public Order(Long userId, String product, Integer quantity, LocalDate orderDate) {
     this.userId = userId;
     this.product = product;
     this.quantity = quantity;
@@ -47,10 +47,10 @@ public class Order {
   public void setQuantity(Integer quantity) {
     this.quantity = quantity;
   }
-  public Date getOrderDate() {
+  public LocalDate getOrderDate() {
     return orderDate;
   }
-  public void setOrderDate(Date orderDate) {
+  public void setOrderDate(LocalDate orderDate) {
     this.orderDate = orderDate;
   }
 

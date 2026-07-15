@@ -2,9 +2,11 @@ package com.iroit.notification_service.controllers;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
-import java.sql.Date;
+import java.time.LocalDateTime;
+import java.time.Month;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +33,7 @@ class NotificationControllerTest {
   @Test
   void getNotifications_returnsOkWithBody() {
     when(notificationService.getNotifications()).thenReturn(java.util.List.of(
-        new Notification(1L, 1L, "Order created", Date.valueOf("2026-01-01"))));
+        new Notification(1L, 1L, "Order created", LocalDateTime.of(2026, Month.JANUARY, 1, 0, 0))));
 
     mvc.get().uri("/")
         .assertThat()
@@ -51,7 +53,7 @@ class NotificationControllerTest {
   @Test
   void getNotification_found_returnsOk() {
     when(notificationService.getNotificationById(1L))
-        .thenReturn(new Notification(1L, 1L, "Order created", Date.valueOf("2026-01-01")));
+        .thenReturn(new Notification(1L, 1L, "Order created", LocalDateTime.of(2026, Month.JANUARY, 1, 0, 0)));
 
     mvc.get().uri("/1")
         .assertThat()
@@ -70,12 +72,12 @@ class NotificationControllerTest {
 
   @Test
   void createNotification_returnsOk() {
-    Notification notification = new Notification(1L, 1L, "Order created", Date.valueOf("2026-01-01"));
+    Notification notification = new Notification(1L, 1L, "Order created", LocalDateTime.of(2026, Month.JANUARY, 1, 0, 0));
     when(notificationService.createNotification(any())).thenReturn(notification);
 
     mvc.post().uri("/")
         .contentType(MediaType.APPLICATION_JSON)
-        .content("{\"orderId\":1,\"userId\":1,\"message\":\"Order created\",\"createdAt\":\"2026-01-01\"}")
+        .content("{\"orderId\":1,\"userId\":1,\"message\":\"Order created\",\"createdAt\":\"2026-01-01T00:00:00\"}")
         .assertThat()
         .hasStatus(HttpStatus.OK);
   }
@@ -93,12 +95,12 @@ class NotificationControllerTest {
 
   @Test
   void updateNotification_returnsOk() {
-    Notification notification = new Notification(1L, 1L, "Order shipped", Date.valueOf("2026-01-02"));
+    Notification notification = new Notification(1L, 1L, "Order shipped", LocalDateTime.of(2026, Month.JANUARY, 2, 0, 0));
     when(notificationService.updateNotification(anyLong(), any())).thenReturn(notification);
 
     mvc.put().uri("/1")
         .contentType(MediaType.APPLICATION_JSON)
-        .content("{\"orderId\":1,\"userId\":1,\"message\":\"Order shipped\",\"createdAt\":\"2026-01-02\"}")
+        .content("{\"orderId\":1,\"userId\":1,\"message\":\"Order shipped\",\"createdAt\":\"2026-01-02T00:00:00\"}")
         .assertThat()
         .hasStatus(HttpStatus.OK)
         .bodyText().contains("Order shipped");
@@ -110,7 +112,7 @@ class NotificationControllerTest {
 
     mvc.put().uri("/1")
         .contentType(MediaType.APPLICATION_JSON)
-        .content("{\"orderId\":1,\"userId\":1,\"message\":\"Order shipped\",\"createdAt\":\"2026-01-02\"}")
+        .content("{\"orderId\":1,\"userId\":1,\"message\":\"Order shipped\",\"createdAt\":\"2026-01-02T00:00:00\"}")
         .assertThat()
         .hasStatus(HttpStatus.NOT_FOUND);
   }
@@ -124,7 +126,7 @@ class NotificationControllerTest {
 
   @Test
   void deleteNotification_notFound_returns404() {
-    org.mockito.Mockito.doThrow(new ResourceNotFoundException("The notification was not found!"))
+    doThrow(new ResourceNotFoundException("The notification was not found!"))
         .when(notificationService).deleteNotification(1L);
 
     mvc.delete().uri("/1")

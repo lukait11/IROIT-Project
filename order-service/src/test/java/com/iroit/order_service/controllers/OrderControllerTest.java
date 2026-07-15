@@ -2,9 +2,11 @@ package com.iroit.order_service.controllers;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
-import java.sql.Date;
+import java.time.LocalDate;
+import java.time.Month;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +33,7 @@ class OrderControllerTest {
   @Test
   void getOrders_returnsOkWithBody() {
     when(orderService.getOrders()).thenReturn(java.util.List.of(
-        new Order(1L, "Keyboard", 2, Date.valueOf("2026-01-01"))));
+        new Order(1L, "Keyboard", 2, LocalDate.of(2026, Month.JANUARY, 1))));
 
     mvc.get().uri("/")
         .assertThat()
@@ -51,7 +53,7 @@ class OrderControllerTest {
   @Test
   void getOrder_found_returnsOk() {
     when(orderService.getOrderById(1L))
-        .thenReturn(new Order(1L, "Keyboard", 2, Date.valueOf("2026-01-01")));
+        .thenReturn(new Order(1L, "Keyboard", 2, LocalDate.of(2026, Month.JANUARY, 1)));
 
     mvc.get().uri("/1")
         .assertThat()
@@ -70,7 +72,7 @@ class OrderControllerTest {
 
   @Test
   void createOrder_returnsOk() {
-    Order order = new Order(1L, "Keyboard", 2, Date.valueOf("2026-01-01"));
+    Order order = new Order(1L, "Keyboard", 2, LocalDate.of(2026, Month.JANUARY, 1));
     when(orderService.createOrder(any())).thenReturn(order);
 
     mvc.post().uri("/")
@@ -93,7 +95,7 @@ class OrderControllerTest {
 
   @Test
   void updateOrder_returnsOk() {
-    Order order = new Order(1L, "Mouse", 5, Date.valueOf("2026-02-02"));
+    Order order = new Order(1L, "Mouse", 5, LocalDate.of(2026, Month.FEBRUARY, 2));
     when(orderService.updateOrder(anyLong(), any())).thenReturn(order);
 
     mvc.put().uri("/1")
@@ -124,7 +126,7 @@ class OrderControllerTest {
 
   @Test
   void deleteOrder_notFound_returns404() {
-    org.mockito.Mockito.doThrow(new ResourceNotFoundException("The order was not found!"))
+    doThrow(new ResourceNotFoundException("The order was not found!"))
         .when(orderService).deleteOrder(1L);
 
     mvc.delete().uri("/1")

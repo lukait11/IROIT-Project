@@ -1,6 +1,6 @@
 package com.iroit.payment_service.models;
 
-import java.sql.Date;
+import java.time.LocalDate;
 
 import jakarta.persistence.*;
 
@@ -14,11 +14,11 @@ public class Payment {
   private Long orderId;
   private Double amount;
   private String status;
-  private Date paymentDate;
+  private LocalDate paymentDate;
 
   public Payment() {}
 
-  public Payment(Long orderId, Double amount, String status, Date paymentDate) {
+  public Payment(Long orderId, Double amount, String status, LocalDate paymentDate) {
     this.orderId = orderId;
     this.amount = amount;
     this.status = status;
@@ -47,10 +47,10 @@ public class Payment {
   public void setStatus(String status) {
     this.status = status;
   }
-  public Date getPaymentDate() {
+  public LocalDate getPaymentDate() {
     return paymentDate;
   }
-  public void setPaymentDate(Date paymentDate) {
+  public void setPaymentDate(LocalDate paymentDate) {
     this.paymentDate = paymentDate;
   }
 
