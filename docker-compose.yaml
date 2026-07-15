@@ -176,6 +176,29 @@ services:
       - iroit
     restart: unless-stopped
 
+  loki:
+    image: grafana/loki:3.2.1
+    command: -config.file=/etc/loki/loki-config.yaml
+    volumes:
+      - ./loki/loki-config.yaml:/etc/loki/loki-config.yaml:ro
+      - loki_data:/loki
+    networks:
+      - iroit
+    restart: unless-stopped
+
+  promtail:
+    image: grafana/promtail:3.2.1
+    command: -config.file=/etc/promtail/promtail-config.yaml
+    volumes:
+      - ./promtail/promtail-config.yaml:/etc/promtail/promtail-config.yaml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    networks:
+      - iroit
+    depends_on:
+      - loki
+    restart: unless-stopped
+
   grafana:
     # Pinned below v13's new dashboard schema/rendering engine, which broke
     # provisioned classic-schema dashboards (panels silently failed to mount).
@@ -194,6 +217,7 @@ services:
     depends_on:
       - prometheus
       - tempo
+      - loki
     restart: unless-stopped
 
 volumes:
@@ -201,6 +225,7 @@ volumes:
   prometheus_data:
   grafana_data:
   tempo_data:
+  loki_data:
 
 networks:
   iroit:
