@@ -19,8 +19,10 @@ COPY --from=build /app/target/api-gateway-0.0.1-SNAPSHOT.jar app.jar
 
 ENV OTEL_SERVICE_NAME=api-gateway
 ENV OTEL_TRACES_EXPORTER=otlp
-ENV OTEL_METRICS_EXPORTER=otlp
-ENV OTEL_LOGS_EXPORTER=otlp
+# Metrics are already handled by Micrometer + Prometheus (/actuator/prometheus),
+# and there's no logs backend, so don't let the agent also try to export those.
+ENV OTEL_METRICS_EXPORTER=none
+ENV OTEL_LOGS_EXPORTER=none
 
 EXPOSE 8080
 ENTRYPOINT [ "java", "-javaagent:/otel/opentelemetry-javaagent.jar", "-jar", "app.jar" ]
