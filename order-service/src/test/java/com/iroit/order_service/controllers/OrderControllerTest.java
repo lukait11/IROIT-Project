@@ -40,6 +40,15 @@ class OrderControllerTest {
   }
 
   @Test
+  void getOrders_unexpectedException_returns500() {
+    when(orderService.getOrders()).thenThrow(new RuntimeException("boom"));
+
+    mvc.get().uri("/")
+        .assertThat()
+        .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  @Test
   void getOrder_found_returnsOk() {
     when(orderService.getOrderById(1L))
         .thenReturn(new Order(1L, "Keyboard", 2, Date.valueOf("2026-01-01")));
