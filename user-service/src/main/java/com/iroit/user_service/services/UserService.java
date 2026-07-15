@@ -2,7 +2,6 @@ package com.iroit.user_service.services;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.iroit.user_service.exceptions.InvalidRequestException;
@@ -13,8 +12,11 @@ import com.iroit.user_service.repositories.UserRepository;
 @Service
 public class UserService {
 
-  @Autowired
-  private UserRepository userRepository;
+  private final UserRepository userRepository;
+
+  public UserService(UserRepository userRepository) {
+    this.userRepository = userRepository;
+  }
 
 //#region Get methods
   public List<User> getUsers() {

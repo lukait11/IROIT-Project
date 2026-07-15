@@ -1,13 +1,14 @@
 package com.iroit.order_service.events;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.sql.Date;
+import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,7 +31,7 @@ class OrderEventProducerTest {
 
   @Test
   void publish_sendsOrderEventToTheOrderEventsTopic() {
-    Order order = spy(new Order(1L, "Keyboard", 2, Date.valueOf("2026-01-01")));
+    Order order = spy(new Order(1L, "Keyboard", 2, LocalDate.of(2026, 1, 1)));
     when(order.getOrderId()).thenReturn(42L);
 
     orderEventProducer.publish("ORDER_CREATED", order);
@@ -46,13 +47,15 @@ class OrderEventProducerTest {
 
   @Test
   void publish_kafkaSendThrows_isCaughtAndNotPropagated() {
-    Order order = spy(new Order(1L, "Keyboard", 2, Date.valueOf("2026-01-01")));
+    Order order = spy(new Order(1L, "Keyboard", 2, LocalDate.of(2026, 1, 1)));
     when(order.getOrderId()).thenReturn(42L);
     when(kafkaTemplate.send(any(String.class), any(String.class), any(OrderEvent.class)))
         .thenThrow(new RuntimeException("broker unreachable"));
 
     // A broker outage must not fail the request that triggered the publish.
-    orderEventProducer.publish("ORDER_CREATED", order);
+    assertThatCode(() -> orderEventProducer.publish("ORDER_CREATED", order)).doesNotThrowAnyException();
+
+    verify(kafkaTemplate).send(eq(OrderEventProducer.TOPIC), eq("42"), any(OrderEvent.class));
   }
 
 }

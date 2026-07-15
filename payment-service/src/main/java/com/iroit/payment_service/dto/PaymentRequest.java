@@ -1,33 +1,15 @@
-package com.iroit.payment_service.models;
+package com.iroit.payment_service.dto;
 
 import java.time.LocalDate;
 
-import jakarta.persistence.*;
+// Request body shape for create/update - kept separate from the Payment entity
+// so incoming JSON can't set persistence-only fields (e.g. paymentId) via mass assignment.
+public class PaymentRequest {
 
-@Entity
-@Table(name = "payments")
-public class Payment {
-
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long paymentId;
   private Long orderId;
   private Double amount;
   private String status;
   private LocalDate paymentDate;
-
-  public Payment() {}
-
-  public Payment(Long orderId, Double amount, String status, LocalDate paymentDate) {
-    this.orderId = orderId;
-    this.amount = amount;
-    this.status = status;
-    this.paymentDate = paymentDate;
-  }
-
-  public Long getPaymentId() {
-    return paymentId;
-  }
 
   public Long getOrderId() {
     return orderId;

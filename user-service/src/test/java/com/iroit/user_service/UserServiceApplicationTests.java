@@ -2,7 +2,7 @@ package com.iroit.user_service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.sql.Date;
+import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +32,7 @@ class UserServiceApplicationTests {
 
   @Test
   void fullUserLifecycle_createReadUpdateDeleteAllWorkAgainstARealDatabase() {
-    User newUser = new User("Ada", "Lovelace", Date.valueOf("1815-12-10"));
+    User newUser = new User("Ada", "Lovelace", LocalDate.of(1815, 12, 10));
 
     ResponseEntity<User> createResponse = restTemplate.postForEntity("/", newUser, User.class);
     assertThat(createResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -51,7 +51,7 @@ class UserServiceApplicationTests {
     assertThat(listResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat(listResponse.getBody()).hasSize(1);
 
-    User update = new User("Augusta", "King", Date.valueOf("1815-12-10"));
+    User update = new User("Augusta", "King", LocalDate.of(1815, 12, 10));
     restTemplate.put("/" + id, update);
 
     ResponseEntity<User> afterUpdate = restTemplate.getForEntity("/" + id, User.class);

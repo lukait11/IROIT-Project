@@ -1,23 +1,23 @@
 package com.iroit.user_service.models;
 
-import java.sql.Date;
+import java.time.LocalDate;
 
 import jakarta.persistence.*;
 
-@Entity 
+@Entity
 @Table(name = "users")
 public class User {
-  
-  @Id 
+
+  @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long userId;
   private String firstName;
   private String lastName;
-  private Date dateOfBirth;
+  private LocalDate dateOfBirth;
 
   public User() {}
 
-  public User(String firstName, String lastName, Date dateOfBirth) {
+  public User(String firstName, String lastName, LocalDate dateOfBirth) {
     this.firstName = firstName;
     this.lastName = lastName;
     this.dateOfBirth = dateOfBirth;
@@ -39,10 +39,10 @@ public class User {
   public void setLastName(String lastName) {
     this.lastName = lastName;
   }
-  public Date getDateOfBirth() {
+  public LocalDate getDateOfBirth() {
     return dateOfBirth;
   }
-  public void setDateOfBirth(Date dateOfBirth) {
+  public void setDateOfBirth(LocalDate dateOfBirth) {
     this.dateOfBirth = dateOfBirth;
   }
 

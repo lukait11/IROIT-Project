@@ -1,33 +1,16 @@
-package com.iroit.notification_service.models;
+package com.iroit.notification_service.dto;
 
 import java.time.LocalDateTime;
 
-import jakarta.persistence.*;
+// Request body shape for create/update - kept separate from the Notification
+// entity so incoming JSON can't set persistence-only fields (e.g. notificationId)
+// via mass assignment.
+public class NotificationRequest {
 
-@Entity
-@Table(name = "notifications")
-public class Notification {
-
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long notificationId;
   private Long orderId;
   private Long userId;
   private String message;
   private LocalDateTime createdAt;
-
-  public Notification() {}
-
-  public Notification(Long orderId, Long userId, String message, LocalDateTime createdAt) {
-    this.orderId = orderId;
-    this.userId = userId;
-    this.message = message;
-    this.createdAt = createdAt;
-  }
-
-  public Long getNotificationId() {
-    return notificationId;
-  }
 
   public Long getOrderId() {
     return orderId;

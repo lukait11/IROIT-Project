@@ -8,7 +8,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,7 +39,7 @@ class OrderServiceTest {
 
   @Test
   void getOrders_returnsWhateverTheRepositoryHas() {
-    Order order = new Order(1L, "Keyboard", 2, Date.valueOf("2026-01-01"));
+    Order order = new Order(1L, "Keyboard", 2, LocalDate.of(2026, 1, 1));
     when(orderRepository.findAll()).thenReturn(List.of(order));
 
     List<Order> result = orderService.getOrders();
@@ -63,7 +63,7 @@ class OrderServiceTest {
 
   @Test
   void getOrderById_found_returnsOrder() {
-    Order order = new Order(1L, "Keyboard", 2, Date.valueOf("2026-01-01"));
+    Order order = new Order(1L, "Keyboard", 2, LocalDate.of(2026, 1, 1));
     when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
 
     Order result = orderService.getOrderById(1L);
@@ -82,7 +82,7 @@ class OrderServiceTest {
 
   @Test
   void createOrder_validOrder_savesAndPublishesCreatedEvent() {
-    Order order = new Order(1L, "Keyboard", 2, Date.valueOf("2026-01-01"));
+    Order order = new Order(1L, "Keyboard", 2, LocalDate.of(2026, 1, 1));
     when(orderRepository.save(order)).thenReturn(order);
 
     Order result = orderService.createOrder(order);
@@ -93,7 +93,7 @@ class OrderServiceTest {
 
   @Test
   void updateOrder_invalidId_throwsInvalidRequestException() {
-    Order order = new Order(1L, "Keyboard", 2, Date.valueOf("2026-01-01"));
+    Order order = new Order(1L, "Keyboard", 2, LocalDate.of(2026, 1, 1));
 
     assertThatThrownBy(() -> orderService.updateOrder(-1L, order))
         .isInstanceOf(InvalidRequestException.class);
@@ -114,7 +114,7 @@ class OrderServiceTest {
   @Test
   void updateOrder_notFound_throwsResourceNotFoundException_andDoesNotPublish() {
     when(orderRepository.findById(1L)).thenReturn(Optional.empty());
-    Order order = new Order(1L, "Keyboard", 2, Date.valueOf("2026-01-01"));
+    Order order = new Order(1L, "Keyboard", 2, LocalDate.of(2026, 1, 1));
 
     assertThatThrownBy(() -> orderService.updateOrder(1L, order))
         .isInstanceOf(ResourceNotFoundException.class);
@@ -125,11 +125,11 @@ class OrderServiceTest {
 
   @Test
   void updateOrder_existingOrder_savesTheFoundEntityAndPublishesUpdatedEvent() {
-    Order existing = new Order(1L, "Keyboard", 2, Date.valueOf("2026-01-01"));
+    Order existing = new Order(1L, "Keyboard", 2, LocalDate.of(2026, 1, 1));
     when(orderRepository.findById(1L)).thenReturn(Optional.of(existing));
     when(orderRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-    Order incoming = new Order(1L, "Mouse", 5, Date.valueOf("2026-02-02"));
+    Order incoming = new Order(1L, "Mouse", 5, LocalDate.of(2026, 2, 2));
     Order result = orderService.updateOrder(1L, incoming);
 
     ArgumentCaptor<Order> savedCaptor = ArgumentCaptor.forClass(Order.class);
@@ -165,7 +165,7 @@ class OrderServiceTest {
 
   @Test
   void deleteOrder_existing_deletesItAndPublishesDeletedEvent() {
-    Order existing = new Order(1L, "Keyboard", 2, Date.valueOf("2026-01-01"));
+    Order existing = new Order(1L, "Keyboard", 2, LocalDate.of(2026, 1, 1));
     when(orderRepository.findById(1L)).thenReturn(Optional.of(existing));
 
     orderService.deleteOrder(1L);

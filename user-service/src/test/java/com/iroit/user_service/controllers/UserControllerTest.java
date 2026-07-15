@@ -2,9 +2,10 @@ package com.iroit.user_service.controllers;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
-import java.sql.Date;
+import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +32,7 @@ class UserControllerTest {
   @Test
   void getUsers_returnsOkWithBody() {
     when(userService.getUsers()).thenReturn(java.util.List.of(
-        new User("Ada", "Lovelace", Date.valueOf("1815-12-10"))));
+        new User("Ada", "Lovelace", LocalDate.of(1815, 12, 10))));
 
     mvc.get().uri("/")
         .assertThat()
@@ -42,7 +43,7 @@ class UserControllerTest {
   @Test
   void getUser_found_returnsOk() {
     when(userService.getUserById(1L))
-        .thenReturn(new User("Ada", "Lovelace", Date.valueOf("1815-12-10")));
+        .thenReturn(new User("Ada", "Lovelace", LocalDate.of(1815, 12, 10)));
 
     mvc.get().uri("/1")
         .assertThat()
@@ -61,7 +62,7 @@ class UserControllerTest {
 
   @Test
   void createUser_returnsOk() {
-    User user = new User("Ada", "Lovelace", Date.valueOf("1815-12-10"));
+    User user = new User("Ada", "Lovelace", LocalDate.of(1815, 12, 10));
     when(userService.createUser(any())).thenReturn(user);
 
     mvc.post().uri("/")
@@ -84,7 +85,7 @@ class UserControllerTest {
 
   @Test
   void updateUser_returnsOk() {
-    User user = new User("Augusta", "King", Date.valueOf("1815-12-10"));
+    User user = new User("Augusta", "King", LocalDate.of(1815, 12, 10));
     when(userService.updateUser(anyLong(), any())).thenReturn(user);
 
     mvc.put().uri("/1")
@@ -115,7 +116,7 @@ class UserControllerTest {
 
   @Test
   void deleteUser_notFound_returns404() {
-    org.mockito.Mockito.doThrow(new ResourceNotFoundException("The user was not found!"))
+    doThrow(new ResourceNotFoundException("The user was not found!"))
         .when(userService).deleteUser(1L);
 
     mvc.delete().uri("/1")

@@ -1,10 +1,9 @@
 package com.iroit.payment_service.events;
 
-import java.sql.Date;
+import java.time.LocalDate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
@@ -23,8 +22,11 @@ public class OrderEventConsumer {
   private static final Logger logger = LoggerFactory.getLogger(OrderEventConsumer.class);
   private static final ObjectMapper objectMapper = new ObjectMapper();
 
-  @Autowired
-  private PaymentRepository paymentRepository;
+  private final PaymentRepository paymentRepository;
+
+  public OrderEventConsumer(PaymentRepository paymentRepository) {
+    this.paymentRepository = paymentRepository;
+  }
 
   @KafkaListener(topics = "order-events", groupId = "${spring.application.name}")
   public void onOrderEvent(String message) {
@@ -36,7 +38,7 @@ public class OrderEventConsumer {
 
       Long orderId = root.path("order").path("orderId").asLong();
 
-      Payment payment = new Payment(orderId, 0.0, "PENDING", new Date(System.currentTimeMillis()));
+      Payment payment = new Payment(orderId, 0.0, "PENDING", LocalDate.now());
       paymentRepository.save(payment);
       logger.info("Created pending payment for order {}", orderId);
     } catch (Exception e) {

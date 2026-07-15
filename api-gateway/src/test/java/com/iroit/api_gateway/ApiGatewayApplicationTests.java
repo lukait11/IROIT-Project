@@ -8,6 +8,8 @@ import java.nio.charset.StandardCharsets;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.resttestclient.TestRestTemplate;
@@ -60,32 +62,17 @@ class ApiGatewayApplicationTests {
   @Autowired
   private TestRestTemplate restTemplate;
 
-  @Test
-  void routesUsersPath_stripsApiUsersPrefix() {
-    ResponseEntity<String> response = restTemplate.getForEntity("/api/users/42", String.class);
+  @ParameterizedTest
+  @CsvSource({
+      "/api/users/42, /42",
+      "/api/orders/7, /7",
+      "/api/payments/3, /3",
+      "/api/notifications/1, /1"
+  })
+  void routesPath_stripsApiPrefix(String requestPath, String expectedForwardedPath) {
+    ResponseEntity<String> response = restTemplate.getForEntity(requestPath, String.class);
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-    assertThat(response.getBody()).contains("\"path\":\"/42\"");
-  }
-
-  @Test
-  void routesOrdersPath_stripsApiOrdersPrefix() {
-    ResponseEntity<String> response = restTemplate.getForEntity("/api/orders/7", String.class);
-    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-    assertThat(response.getBody()).contains("\"path\":\"/7\"");
-  }
-
-  @Test
-  void routesPaymentsPath_stripsApiPaymentsPrefix() {
-    ResponseEntity<String> response = restTemplate.getForEntity("/api/payments/3", String.class);
-    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-    assertThat(response.getBody()).contains("\"path\":\"/3\"");
-  }
-
-  @Test
-  void routesNotificationsPath_stripsApiNotificationsPrefix() {
-    ResponseEntity<String> response = restTemplate.getForEntity("/api/notifications/1", String.class);
-    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-    assertThat(response.getBody()).contains("\"path\":\"/1\"");
+    assertThat(response.getBody()).contains("\"path\":\"" + expectedForwardedPath + "\"");
   }
 
   @Test

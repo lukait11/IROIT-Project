@@ -2,10 +2,10 @@ package com.iroit.notification_service.controllers;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.iroit.notification_service.dto.NotificationRequest;
 import com.iroit.notification_service.models.Notification;
 import com.iroit.notification_service.services.NotificationService;
 
@@ -19,8 +19,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RestController
 public class NotificationController {
 
-  @Autowired
-  private NotificationService notificationService;
+  private final NotificationService notificationService;
+
+  public NotificationController(NotificationService notificationService) {
+    this.notificationService = notificationService;
+  }
 
   @GetMapping
   public ResponseEntity<List<Notification>> getNotifications() {
@@ -33,12 +36,16 @@ public class NotificationController {
   }
 
   @PostMapping
-  public ResponseEntity<Notification> createNotification(@RequestBody Notification notification) {
+  public ResponseEntity<Notification> createNotification(@RequestBody NotificationRequest request) {
+    Notification notification = new Notification(
+        request.getOrderId(), request.getUserId(), request.getMessage(), request.getCreatedAt());
     return ResponseEntity.ok(notificationService.createNotification(notification));
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<Notification> updateNotification(@PathVariable Long id, @RequestBody Notification notification) {
+  public ResponseEntity<Notification> updateNotification(@PathVariable Long id, @RequestBody NotificationRequest request) {
+    Notification notification = new Notification(
+        request.getOrderId(), request.getUserId(), request.getMessage(), request.getCreatedAt());
     return ResponseEntity.ok(notificationService.updateNotification(id, notification));
   }
 

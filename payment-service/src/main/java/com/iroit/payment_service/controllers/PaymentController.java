@@ -2,10 +2,10 @@ package com.iroit.payment_service.controllers;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.iroit.payment_service.dto.PaymentRequest;
 import com.iroit.payment_service.models.Payment;
 import com.iroit.payment_service.services.PaymentService;
 
@@ -19,8 +19,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RestController
 public class PaymentController {
 
-  @Autowired
-  private PaymentService paymentService;
+  private final PaymentService paymentService;
+
+  public PaymentController(PaymentService paymentService) {
+    this.paymentService = paymentService;
+  }
 
   @GetMapping
   public ResponseEntity<List<Payment>> getPayments() {
@@ -33,12 +36,14 @@ public class PaymentController {
   }
 
   @PostMapping
-  public ResponseEntity<Payment> createPayment(@RequestBody Payment payment) {
+  public ResponseEntity<Payment> createPayment(@RequestBody PaymentRequest request) {
+    Payment payment = new Payment(request.getOrderId(), request.getAmount(), request.getStatus(), request.getPaymentDate());
     return ResponseEntity.ok(paymentService.createPayment(payment));
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<Payment> updatePayment(@PathVariable Long id, @RequestBody Payment payment) {
+  public ResponseEntity<Payment> updatePayment(@PathVariable Long id, @RequestBody PaymentRequest request) {
+    Payment payment = new Payment(request.getOrderId(), request.getAmount(), request.getStatus(), request.getPaymentDate());
     return ResponseEntity.ok(paymentService.updatePayment(id, payment));
   }
 

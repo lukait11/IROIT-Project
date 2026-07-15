@@ -1,33 +1,15 @@
-package com.iroit.order_service.models;
+package com.iroit.order_service.dto;
 
 import java.time.LocalDate;
 
-import jakarta.persistence.*;
+// Request body shape for create/update - kept separate from the Order entity
+// so incoming JSON can't set persistence-only fields (e.g. orderId) via mass assignment.
+public class OrderRequest {
 
-@Entity
-@Table(name = "orders")
-public class Order {
-
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long orderId;
   private Long userId;
   private String product;
   private Integer quantity;
   private LocalDate orderDate;
-
-  public Order() {}
-
-  public Order(Long userId, String product, Integer quantity, LocalDate orderDate) {
-    this.userId = userId;
-    this.product = product;
-    this.quantity = quantity;
-    this.orderDate = orderDate;
-  }
-
-  public Long getOrderId() {
-    return orderId;
-  }
 
   public Long getUserId() {
     return userId;
