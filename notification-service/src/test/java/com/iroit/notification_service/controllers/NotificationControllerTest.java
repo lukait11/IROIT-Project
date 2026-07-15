@@ -40,6 +40,15 @@ class NotificationControllerTest {
   }
 
   @Test
+  void getNotifications_unexpectedException_returns500() {
+    when(notificationService.getNotifications()).thenThrow(new RuntimeException("boom"));
+
+    mvc.get().uri("/")
+        .assertThat()
+        .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  @Test
   void getNotification_found_returnsOk() {
     when(notificationService.getNotificationById(1L))
         .thenReturn(new Notification(1L, 1L, "Order created", Date.valueOf("2026-01-01")));

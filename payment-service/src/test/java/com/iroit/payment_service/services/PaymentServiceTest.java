@@ -58,6 +58,16 @@ class PaymentServiceTest {
   }
 
   @Test
+  void getPaymentById_found_returnsPayment() {
+    Payment payment = new Payment(1L, 49.99, "PENDING", Date.valueOf("2026-01-01"));
+    when(paymentRepository.findById(1L)).thenReturn(Optional.of(payment));
+
+    Payment result = paymentService.getPaymentById(1L);
+
+    assertThat(result).isEqualTo(payment);
+  }
+
+  @Test
   void createPayment_nullPayment_throwsInvalidRequestException() {
     assertThatThrownBy(() -> paymentService.createPayment(null))
         .isInstanceOf(InvalidRequestException.class);
@@ -74,6 +84,24 @@ class PaymentServiceTest {
 
     assertThat(result).isEqualTo(payment);
     verify(paymentRepository).save(payment);
+  }
+
+  @Test
+  void updatePayment_invalidId_throwsInvalidRequestException() {
+    Payment payment = new Payment(1L, 49.99, "PENDING", Date.valueOf("2026-01-01"));
+
+    assertThatThrownBy(() -> paymentService.updatePayment(-1L, payment))
+        .isInstanceOf(InvalidRequestException.class);
+
+    verify(paymentRepository, never()).save(any());
+  }
+
+  @Test
+  void updatePayment_nullBody_throwsInvalidRequestException() {
+    assertThatThrownBy(() -> paymentService.updatePayment(1L, null))
+        .isInstanceOf(InvalidRequestException.class);
+
+    verify(paymentRepository, never()).save(any());
   }
 
   @Test
@@ -103,6 +131,14 @@ class PaymentServiceTest {
     // (so it keeps the existing row's ID), not the detached incoming request body.
     assertThat(savedCaptor.getValue()).isSameAs(existing);
     assertThat(result.getStatus()).isEqualTo("COMPLETED");
+  }
+
+  @Test
+  void deletePayment_invalidId_throwsInvalidRequestException() {
+    assertThatThrownBy(() -> paymentService.deletePayment(-1L))
+        .isInstanceOf(InvalidRequestException.class);
+
+    verify(paymentRepository, never()).deleteById(any());
   }
 
   @Test

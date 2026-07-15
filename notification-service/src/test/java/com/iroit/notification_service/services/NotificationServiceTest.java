@@ -58,6 +58,16 @@ class NotificationServiceTest {
   }
 
   @Test
+  void getNotificationById_found_returnsNotification() {
+    Notification notification = new Notification(1L, 1L, "Order created", Date.valueOf("2026-01-01"));
+    when(notificationRepository.findById(1L)).thenReturn(Optional.of(notification));
+
+    Notification result = notificationService.getNotificationById(1L);
+
+    assertThat(result).isEqualTo(notification);
+  }
+
+  @Test
   void createNotification_nullNotification_throwsInvalidRequestException() {
     assertThatThrownBy(() -> notificationService.createNotification(null))
         .isInstanceOf(InvalidRequestException.class);
@@ -74,6 +84,24 @@ class NotificationServiceTest {
 
     assertThat(result).isEqualTo(notification);
     verify(notificationRepository).save(notification);
+  }
+
+  @Test
+  void updateNotification_invalidId_throwsInvalidRequestException() {
+    Notification notification = new Notification(1L, 1L, "Order created", Date.valueOf("2026-01-01"));
+
+    assertThatThrownBy(() -> notificationService.updateNotification(-1L, notification))
+        .isInstanceOf(InvalidRequestException.class);
+
+    verify(notificationRepository, never()).save(any());
+  }
+
+  @Test
+  void updateNotification_nullBody_throwsInvalidRequestException() {
+    assertThatThrownBy(() -> notificationService.updateNotification(1L, null))
+        .isInstanceOf(InvalidRequestException.class);
+
+    verify(notificationRepository, never()).save(any());
   }
 
   @Test
@@ -103,6 +131,14 @@ class NotificationServiceTest {
     // (so it keeps the existing row's ID), not the detached incoming request body.
     assertThat(savedCaptor.getValue()).isSameAs(existing);
     assertThat(result.getMessage()).isEqualTo("Order shipped");
+  }
+
+  @Test
+  void deleteNotification_invalidId_throwsInvalidRequestException() {
+    assertThatThrownBy(() -> notificationService.deleteNotification(-1L))
+        .isInstanceOf(InvalidRequestException.class);
+
+    verify(notificationRepository, never()).deleteById(any());
   }
 
   @Test

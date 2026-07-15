@@ -40,6 +40,15 @@ class PaymentControllerTest {
   }
 
   @Test
+  void getPayments_unexpectedException_returns500() {
+    when(paymentService.getPayments()).thenThrow(new RuntimeException("boom"));
+
+    mvc.get().uri("/")
+        .assertThat()
+        .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  @Test
   void getPayment_found_returnsOk() {
     when(paymentService.getPaymentById(1L))
         .thenReturn(new Payment(1L, 49.99, "PENDING", Date.valueOf("2026-01-01")));

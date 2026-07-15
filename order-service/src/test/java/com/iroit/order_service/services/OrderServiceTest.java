@@ -62,6 +62,16 @@ class OrderServiceTest {
   }
 
   @Test
+  void getOrderById_found_returnsOrder() {
+    Order order = new Order(1L, "Keyboard", 2, Date.valueOf("2026-01-01"));
+    when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
+
+    Order result = orderService.getOrderById(1L);
+
+    assertThat(result).isEqualTo(order);
+  }
+
+  @Test
   void createOrder_nullOrder_throwsInvalidRequestException() {
     assertThatThrownBy(() -> orderService.createOrder(null))
         .isInstanceOf(InvalidRequestException.class);
@@ -79,6 +89,26 @@ class OrderServiceTest {
 
     assertThat(result).isEqualTo(order);
     verify(orderEventProducer).publish("ORDER_CREATED", order);
+  }
+
+  @Test
+  void updateOrder_invalidId_throwsInvalidRequestException() {
+    Order order = new Order(1L, "Keyboard", 2, Date.valueOf("2026-01-01"));
+
+    assertThatThrownBy(() -> orderService.updateOrder(-1L, order))
+        .isInstanceOf(InvalidRequestException.class);
+
+    verify(orderRepository, never()).save(any());
+    verify(orderEventProducer, never()).publish(any(), any());
+  }
+
+  @Test
+  void updateOrder_nullBody_throwsInvalidRequestException() {
+    assertThatThrownBy(() -> orderService.updateOrder(1L, null))
+        .isInstanceOf(InvalidRequestException.class);
+
+    verify(orderRepository, never()).save(any());
+    verify(orderEventProducer, never()).publish(any(), any());
   }
 
   @Test
@@ -111,6 +141,15 @@ class OrderServiceTest {
     assertThat(result.getProduct()).isEqualTo("Mouse");
     assertThat(result.getQuantity()).isEqualTo(5);
     verify(orderEventProducer).publish("ORDER_UPDATED", existing);
+  }
+
+  @Test
+  void deleteOrder_invalidId_throwsInvalidRequestException() {
+    assertThatThrownBy(() -> orderService.deleteOrder(-1L))
+        .isInstanceOf(InvalidRequestException.class);
+
+    verify(orderRepository, never()).deleteById(any());
+    verify(orderEventProducer, never()).publish(any(), any());
   }
 
   @Test
