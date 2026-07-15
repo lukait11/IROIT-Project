@@ -42,6 +42,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          # SonarCloud wants full history for blame/new-code detection
+          fetch-depth: 0
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -63,6 +66,18 @@ jobs:
       - name: Package
         working-directory: ${{ matrix.path }}
         run: mvn -B package -DskipTests
+
+      - name: SonarCloud Scan
+        working-directory: ${{ matrix.path }}
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: >
+          mvn -B org.sonarsource.scanner.maven:sonar-maven-plugin:5.7.0.6970:sonar
+          -Dsonar.projectKey=iroit-project-${{ matrix.path }}
+          -Dsonar.organization=iroit-2025
+          -Dsonar.host.url=https://sonarcloud.io
+          -Dsonar.qualitygate.wait=true
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
